@@ -1,0 +1,4 @@
+id: tenzir-node
+name: Tenzir Node Helm Chart
+description: Helm chart for running Tenzir Node on Kubernetes.
+repository: tenzir/helm-charts

@@ -1,0 +1,96 @@
+name: Release tenzir-node
+
+on:
+  workflow_dispatch:
+    inputs:
+      intro:
+        description: "1-2 sentence release introduction"
+        required: true
+        type: string
+      title:
+        description: "User-facing release title"
+        required: false
+        default: ""
+        type: string
+      bump:
+        description: "Version bump type"
+        required: false
+        default: auto
+        type: choice
+        options:
+          - auto
+          - patch
+          - minor
+          - major
+      version:
+        description: "Explicit stable release version, for example v0.2.0"
+        required: false
+        default: ""
+        type: string
+      rc:
+        description: "Create or continue a release-candidate series"
+        required: false
+        default: false
+        type: boolean
+
+jobs:
+  validate-release-config:
+    name: Validate release workflow configuration
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validate release configuration
+        env:
+          TENZIR_GITHUB_APP_ID: ${{ vars.TENZIR_GITHUB_APP_ID }}
+          TENZIR_GITHUB_APP_PRIVATE_KEY: ${{ secrets.TENZIR_GITHUB_APP_PRIVATE_KEY }}
+          TENZIR_BOT_GPG_SIGNING_KEY: ${{ secrets.TENZIR_BOT_GPG_SIGNING_KEY }}
+        run: |
+          if [ -z "$TENZIR_GITHUB_APP_ID" ]; then
+            echo "::error::Repository variable 'TENZIR_GITHUB_APP_ID' must be set for release runs."
+            exit 1
+          fi
+          if [ -z "$TENZIR_GITHUB_APP_PRIVATE_KEY" ]; then
+            echo "::error::Repository secret 'TENZIR_GITHUB_APP_PRIVATE_KEY' must be set for release runs."
+            exit 1
+          fi
+          if [ -z "$TENZIR_BOT_GPG_SIGNING_KEY" ]; then
+            echo "::error::Repository secret 'TENZIR_BOT_GPG_SIGNING_KEY' must be set for release runs."
+            exit 1
+          fi
+
+  release:
+    needs: validate-release-config
+    uses: tenzir/ship/.github/workflows/release.yaml@main
+    permissions:
+      contents: write
+    with:
+      intro: ${{ inputs.intro }}
+      title: ${{ inputs.title }}
+      bump: ${{ inputs.bump }}
+      version: ${{ inputs.version }}
+      rc: ${{ inputs.rc }}
+      changelog-root: charts/tenzir-node
+      skip-publish: true
+      post-create: |
+        set -euo pipefail
+
+        release_version="$(uvx tenzir-ship release version --root charts/tenzir-node)"
+        chart_version="${release_version#v}"
+
+        # Bump the chart version inside Chart.yaml. The leading-anchor regex
+        # matches only the top-level `version:` key, not `appVersion:`.
+        sed -i "s/^version: .*/version: ${chart_version}/" charts/tenzir-node/Chart.yaml
+
+        git add charts/tenzir-node
+        git add -u
+        git commit -m "Release tenzir-node ${release_version}"
+        git tag -a "tenzir-node/${release_version}" -m "Release tenzir-node ${release_version}"
+        git push origin "HEAD:$GITHUB_REF_NAME"
+        git push origin "tenzir-node/${release_version}"
+      github_app_id: ${{ vars.TENZIR_GITHUB_APP_ID }}
+      git_user_name: tenzir-bot
+      git_user_email: engineering@tenzir.com
+      sign_commits: true
+      sign_tags: true
+    secrets:
+      github_app_private_key: ${{ secrets.TENZIR_GITHUB_APP_PRIVATE_KEY }}
+      gpg_private_key: ${{ secrets.TENZIR_BOT_GPG_SIGNING_KEY }}
