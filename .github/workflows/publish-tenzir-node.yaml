@@ -32,9 +32,12 @@ jobs:
         uses: sigstore/cosign-installer@398d4b0eeef1380460a10c8013a76f728fb906ac  # v3
 
       - name: Log in to GHCR
+        # Single docker login writes to ~/.docker/config.json, which both
+        # `helm push` and `cosign sign` read. Matches the pattern used by
+        # tenzir/tenzir's container publish workflow.
         run: |
           echo "${{ secrets.GITHUB_TOKEN }}" \
-            | helm registry login ghcr.io \
+            | docker login ghcr.io \
                 --username "${{ github.actor }}" \
                 --password-stdin
 
