@@ -73,7 +73,12 @@ jobs:
       post-create: |
         set -euo pipefail
 
-        release_version="$(uvx tenzir-ship release version --root charts/tenzir-node)"
+        # The 'tenzir-ship release create' step (run before this hook)
+        # materializes the new release directory under
+        # charts/tenzir-node/changelog/releases/. Pick the newest one as the
+        # release version; this works on the first release (where there's no
+        # prior stable to query) and on every subsequent release.
+        release_version=$(basename "$(ls -d charts/tenzir-node/changelog/releases/v* | sort -V | tail -1)")
         chart_version="${release_version#v}"
 
         # Bump the chart version inside Chart.yaml. The leading-anchor regex
