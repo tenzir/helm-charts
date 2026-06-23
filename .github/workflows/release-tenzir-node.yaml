@@ -68,24 +68,24 @@ jobs:
       bump: ${{ inputs.bump }}
       version: ${{ inputs.version }}
       rc: ${{ inputs.rc }}
-      changelog-root: charts/tenzir-node
+      changelog-root: .
       skip-publish: true
       post-create: |
         set -euo pipefail
 
         # The 'tenzir-ship release create' step (run before this hook)
         # materializes the new release directory under
-        # charts/tenzir-node/changelog/releases/. Pick the newest one as the
+        # changelog/releases/. Pick the newest one as the
         # release version; this works on the first release (where there's no
         # prior stable to query) and on every subsequent release.
-        release_version=$(basename "$(ls -d charts/tenzir-node/changelog/releases/v* | sort -V | tail -1)")
+        release_version=$(basename "$(ls -d changelog/releases/v* | sort -V | tail -1)")
         chart_version="${release_version#v}"
 
         # Bump the chart version inside Chart.yaml. The leading-anchor regex
         # matches only the top-level `version:` key, not `appVersion:`.
         sed -i "s/^version: .*/version: ${chart_version}/" charts/tenzir-node/Chart.yaml
 
-        git add charts/tenzir-node
+        git add changelog charts/tenzir-node
         git add -u
         git commit -m "Release tenzir-node ${release_version}"
         git tag -a "tenzir-node/${release_version}" -m "Release tenzir-node ${release_version}"
