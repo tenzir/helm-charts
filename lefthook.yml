@@ -1,0 +1,13 @@
+pre-push:
+  parallel: true
+  commands:
+    helm-lint:
+      run: helm lint charts/tenzir-node
+    chart-testing:
+      run: ct lint --charts charts/tenzir-node --validate-maintainers=false
+    kubeconform:
+      run: helm template tn charts/tenzir-node -f examples/full.yaml | kubeconform -strict -summary -kubernetes-version 1.33.3 -
+    trivy-config:
+      run: trivy config --severity HIGH,CRITICAL --exit-code 1 --helm-values examples/full.yaml charts/tenzir-node
+    validate-changelog:
+      run: uvx tenzir-ship --root changelog validate
