@@ -34,7 +34,7 @@ Common labels.
 {{- define "tenzir-node.labels" -}}
 helm.sh/chart: {{ include "tenzir-node.chart" . }}
 {{ include "tenzir-node.selectorLabels" . }}
-app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
+app.kubernetes.io/version: {{ .Values.image.tag | default .Chart.AppVersion | quote }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{- end }}
 
