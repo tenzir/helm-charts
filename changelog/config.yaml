@@ -1,0 +1,4 @@
+id: tenzir-helm-charts
+name: Tenzir Helm Charts
+description: Helm charts for deploying Tenzir components on Kubernetes.
+repository: tenzir/helm-charts
