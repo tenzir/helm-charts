@@ -10,4 +10,4 @@ pre-push:
     trivy-config:
       run: trivy config --severity HIGH,CRITICAL --exit-code 1 --helm-values examples/full.yaml charts/tenzir-node
     validate-changelog:
-      run: uvx tenzir-ship validate
+      run: uvx tenzir-ship validate --lenient

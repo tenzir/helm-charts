@@ -52,3 +52,6 @@ jobs:
 
       - name: Run quality checks
         run: uvx --from lefthook==2.1.6 lefthook run pre-push --all-files
+
+      - name: Validate changelog
+        run: uvx tenzir-ship validate
