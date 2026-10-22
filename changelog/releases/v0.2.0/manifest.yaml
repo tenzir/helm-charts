@@ -1,0 +1,9 @@
+created: 2026-10-22
+title: Support slow node startups
+intro: >-
+  A configurable startup probe gives nodes with large partition catalogs time to start
+  before liveness checks begin. Kubernetes version labels now reflect the configured
+  image tag.
+source:
+  mode: sync-stable-queue
+  previous_stable: v0.1.0
