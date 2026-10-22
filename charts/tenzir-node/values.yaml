@@ -160,6 +160,13 @@ livenessProbe:
   timeoutSeconds: 2
   failureThreshold: 3
 
+startupProbe:
+  enabled: true
+  initialDelaySeconds: 0
+  periodSeconds: 10
+  timeoutSeconds: 5
+  failureThreshold: 60
+
 nodeSelector: {}
 tolerations: []
 affinity: {}

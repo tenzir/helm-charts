@@ -209,6 +209,9 @@
     },
     "livenessProbe": {
       "$ref": "#/definitions/probe"
+    },
+    "startupProbe": {
+      "$ref": "#/definitions/probe"
     }
   },
   "definitions": {

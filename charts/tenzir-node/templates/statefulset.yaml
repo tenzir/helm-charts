@@ -165,6 +165,15 @@ spec:
             timeoutSeconds: {{ $.Values.livenessProbe.timeoutSeconds }}
             failureThreshold: {{ $.Values.livenessProbe.failureThreshold }}
           {{- end }}
+          {{- if $.Values.startupProbe.enabled }}
+          startupProbe:
+            tcpSocket:
+              port: node
+            initialDelaySeconds: {{ $.Values.startupProbe.initialDelaySeconds }}
+            periodSeconds: {{ $.Values.startupProbe.periodSeconds }}
+            timeoutSeconds: {{ $.Values.startupProbe.timeoutSeconds }}
+            failureThreshold: {{ $.Values.startupProbe.failureThreshold }}
+          {{- end }}
           {{- with $.Values.resources }}
           resources:
             {{- toYaml . | nindent 12 }}
